@@ -62,6 +62,7 @@
 #include <rosflight_msgs/OutputRaw.h>
 #include <rosflight_msgs/RCRaw.h>
 #include <rosflight_msgs/Status.h>
+#include <rosflight_msgs/AddedTorque.h>
 
 #include <rosflight_msgs/ParamFile.h>
 #include <rosflight_msgs/ParamGet.h>
@@ -73,6 +74,7 @@
 #include <rosflight/mavrosflight/param_listener_interface.h>
 
 #include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/Vector3Stamped.h>
 
 namespace rosflight_io
 {
@@ -110,9 +112,11 @@ private:
   void handle_named_command_struct_msg(const mavlink_message_t &msg);
   void handle_small_range_msg(const mavlink_message_t &msg);
   void handle_version_msg(const mavlink_message_t &msg);
-
+  void handle_total_torque_msg(const mavlink_message_t &msg);
+  
   // ROS message callbacks
   void commandCallback(rosflight_msgs::Command::ConstPtr msg);
+  void addedTorqueCallback(rosflight_msgs::AddedTorque::ConstPtr msg);
 
   // ROS service callbacks
   bool paramGetSrvCallback(rosflight_msgs::ParamGet::Request &req, rosflight_msgs::ParamGet::Response &res);
@@ -144,6 +148,7 @@ private:
   ros::NodeHandle nh_;
 
   ros::Subscriber command_sub_;
+  ros::Subscriber torque_sub_;
 
   ros::Publisher unsaved_params_pub_;
   ros::Publisher imu_pub_;
@@ -160,6 +165,9 @@ private:
   ros::Publisher status_pub_;
   ros::Publisher version_pub_;
   ros::Publisher lidar_pub_;
+  ros::Publisher error_pub_;
+  ros::Publisher torque_pub_;
+
   std::map<std::string, ros::Publisher> named_value_int_pubs_;
   std::map<std::string, ros::Publisher> named_value_float_pubs_;
   std::map<std::string, ros::Publisher> named_command_struct_pubs_;

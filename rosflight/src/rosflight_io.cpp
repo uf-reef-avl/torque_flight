@@ -50,8 +50,10 @@ namespace rosflight_io
 rosflightIO::rosflightIO()
 {
   command_sub_ = nh_.subscribe("command", 1, &rosflightIO::commandCallback, this);
+  torque_sub_ = nh_.subscribe("added_torque", 1, &rosflightIO::addedTorqueCallback, this);
 
   unsaved_params_pub_ = nh_.advertise<std_msgs::Bool>("unsaved_params", 1, true);
+  torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("total_torque", 1);
 
   param_get_srv_ = nh_.advertiseService("param_get", &rosflightIO::paramGetSrvCallback, this);
   param_set_srv_ = nh_.advertiseService("param_set", &rosflightIO::paramSetSrvCallback, this);
@@ -156,7 +158,7 @@ void rosflightIO::handle_mavlink_message(const mavlink_message_t &msg)
       handle_small_mag_msg(msg);
       break;
     case MAVLINK_MSG_ID_ROSFLIGHT_OUTPUT_RAW:
-      handle_rosflight_output_raw_msg(msg);
+      handle_rosflight_output_raw_msg(msg); // todo make this handle_total_torque_msg
       break;
     case MAVLINK_MSG_ID_RC_CHANNELS:
       handle_rc_channels_raw_msg(msg);
@@ -185,6 +187,9 @@ void rosflightIO::handle_mavlink_message(const mavlink_message_t &msg)
     case MAVLINK_MSG_ID_PARAM_VALUE:
     case MAVLINK_MSG_ID_TIMESYNC:
       // silently ignore (handled elsewhere)
+      break;
+    case MAVLINK_MSG_ID_TOTAL_TORQUE:
+      handle_total_torque_msg(msg);
       break;
     default:
       ROS_DEBUG("rosflight_io: Got unhandled mavlink message ID %d", msg.msgid);
@@ -683,6 +688,22 @@ void rosflightIO::handle_version_msg(const mavlink_message_t &msg)
   ROS_INFO("Firmware version: %s", version.version);
 }
 
+void rosflightIO::handle_total_torque_msg(const mavlink_message_t &msg) {
+  mavlink_total_torque_t outTotalTorqueMsg;
+  mavlink_msg_total_torque_decode(&msg, &outTotalTorqueMsg);
+
+  geometry_msgs::Vector3Stamped outputVector;
+  outputVector.vector.x = outTotalTorqueMsg.x;
+  outputVector.vector.y = outTotalTorqueMsg.y;
+  outputVector.vector.z = outTotalTorqueMsg.z;
+  outputVector.header.stamp = ros::Time::now();
+
+  if (torque_pub_.getTopic().empty())
+    torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("total_torque", 1);
+  torque_pub_.publish(outputVector);
+}
+
+
 void rosflightIO::commandCallback(rosflight_msgs::Command::ConstPtr msg)
 {
   //! \todo these are hard-coded to match right now; may want to replace with something more robust
@@ -712,6 +733,17 @@ void rosflightIO::commandCallback(rosflight_msgs::Command::ConstPtr msg)
 
   mavlink_message_t mavlink_msg;
   mavlink_msg_offboard_control_pack(1, 50, &mavlink_msg, mode, ignore, x, y, z, F);
+  mavrosflight_->comm.send_message(mavlink_msg);
+}
+
+void rosflightIO::addedTorqueCallback(rosflight_msgs::AddedTorque::ConstPtr msg)
+{
+  float x = msg->x;
+  float y = msg->y;
+  float z = msg->z;
+
+  mavlink_message_t mavlink_msg;
+  mavlink_msg_added_torque_pack(1, 50, &mavlink_msg, x, y, z);
   mavrosflight_->comm.send_message(mavlink_msg);
 }
 
