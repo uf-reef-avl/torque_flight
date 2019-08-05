@@ -1,6 +1,6 @@
 [submodule "rosflight/include/mavlink/v1.0"]
 	path = rosflight/include/rosflight/mavlink/v1.0
-	url = https://github.com/rosflight/mavlink_c_library.git
+	url = http://192.168.1.101/avl-summer-19/torque_flight_mavlink
 [submodule "rosflight_firmware/firmware"]
 	path = rosflight_firmware/firmware
-	url = https://github.com/rosflight/firmware
+	url = http://192.168.1.101/avl-summer-19/torque_flight_firmware
