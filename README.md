@@ -4,6 +4,14 @@
 
 This repository contains the ROS stack for interfacing with an autopilot running the ROSflight firmware. For more information on the ROSflight autopilot firmware stack, visit http://rosflight.org.
 
+## REEF Edits
+
+`torque_flight` has two extra data streams coming from `rosflight`. The first is `total_torque` which is the output torque commands from the controller on the autopilot. These torques go through a simple transformation matrix to produce raw PWM values. The second stream is `added_torque` which is the "after PID" additive input to the output torques just described.
+
+Note that the default branches are `torque` and `torques` depending on the repo.
+
+
+
 The following sections describe each of the packages contained in this stack.
 
 ## rosflight_pkgs
