@@ -53,7 +53,13 @@ rosflightIO::rosflightIO()
   torque_sub_ = nh_.subscribe("added_torque", 1, &rosflightIO::addedTorqueCallback, this);
 
   unsaved_params_pub_ = nh_.advertise<std_msgs::Bool>("unsaved_params", 1, true);
+<<<<<<< Updated upstream
   torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("total_torque", 1);
+=======
+  error_pub_ = nh_.advertise<rosflight_msgs::Error>("rosflight_errors",5,true); // A relatively large queue so all messages get through
+  torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("total_torque", 1, true);
+  pid_torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("pid_torque", 1, true);
+>>>>>>> Stashed changes
 
   param_get_srv_ = nh_.advertiseService("param_get", &rosflightIO::paramGetSrvCallback, this);
   param_set_srv_ = nh_.advertiseService("param_set", &rosflightIO::paramSetSrvCallback, this);
@@ -191,6 +197,8 @@ void rosflightIO::handle_mavlink_message(const mavlink_message_t &msg)
     case MAVLINK_MSG_ID_TOTAL_TORQUE:
       handle_total_torque_msg(msg);
       break;
+    case MAVLINK_MSG_ID_PID_TORQUE:
+      handle_pid_torque_msg(msg);
     default:
       ROS_DEBUG("rosflight_io: Got unhandled mavlink message ID %d", msg.msgid);
       break;
@@ -689,8 +697,13 @@ void rosflightIO::handle_version_msg(const mavlink_message_t &msg)
 }
 
 void rosflightIO::handle_total_torque_msg(const mavlink_message_t &msg) {
+<<<<<<< Updated upstream
   mavlink_total_torque_t outTotalTorqueMsg;
   mavlink_msg_total_torque_decode(&msg, &outTotalTorqueMsg);
+=======
+  mavlink_rosflight_total_torque_t outTotalTorqueMsg;
+  mavlink_msg_rosflight_total_torque_decode(&msg, &outTotalTorqueMsg);
+>>>>>>> Stashed changes
 
   geometry_msgs::Vector3Stamped outputVector;
   outputVector.vector.x = outTotalTorqueMsg.x;
@@ -701,6 +714,21 @@ void rosflightIO::handle_total_torque_msg(const mavlink_message_t &msg) {
   if (torque_pub_.getTopic().empty())
     torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("total_torque", 1);
   torque_pub_.publish(outputVector);
+}
+
+void rosflightIO::handle_pid_torque_msg(const mavlink_message_t &msg) {
+  mavlink_rosflight_pid_torque_t outPIDTorqueMsg;
+  mavlink_msg_rosflight_pid_torque_decode(&msg, &outPIDTorqueMsg);
+
+  geometry_msgs::Vector3Stamped outputVector;
+  outputVector.vector.x = outPIDTorqueMsg.x;
+  outputVector.vector.y = outPIDTorqueMsg.y;
+  outputVector.vector.z = outPIDTorqueMsg.z;
+  outputVector.header.stamp = ros::Time::now();
+
+  if (pid_torque_pub_.getTopic().empty())
+    pid_torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("pid_torque", 1);
+  pid_torque_pub_.publish(outputVector);
 }
 
 

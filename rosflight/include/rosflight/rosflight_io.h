@@ -113,7 +113,12 @@ private:
   void handle_small_range_msg(const mavlink_message_t &msg);
   void handle_version_msg(const mavlink_message_t &msg);
   void handle_total_torque_msg(const mavlink_message_t &msg);
+<<<<<<< Updated upstream
   
+=======
+  void handle_pid_torque_msg(const mavlink_message_t &msg);
+
+>>>>>>> Stashed changes
   // ROS message callbacks
   void commandCallback(rosflight_msgs::Command::ConstPtr msg);
   void addedTorqueCallback(rosflight_msgs::AddedTorque::ConstPtr msg);
@@ -167,7 +172,11 @@ private:
   ros::Publisher lidar_pub_;
   ros::Publisher error_pub_;
   ros::Publisher torque_pub_;
+<<<<<<< Updated upstream
 
+=======
+  ros::PUblisher pid_torque_pub_;
+>>>>>>> Stashed changes
   std::map<std::string, ros::Publisher> named_value_int_pubs_;
   std::map<std::string, ros::Publisher> named_value_float_pubs_;
   std::map<std::string, ros::Publisher> named_command_struct_pubs_;
