@@ -692,8 +692,8 @@ void rosflightIO::handle_version_msg(const mavlink_message_t &msg)
 }
 
 void rosflightIO::handle_total_torque_msg(const mavlink_message_t &msg) {
-  mavlink_rosflight_total_torque_t outTotalTorqueMsg;
-  mavlink_msg_rosflight_total_torque_decode(&msg, &outTotalTorqueMsg);
+  mavlink_total_torque_t outTotalTorqueMsg;
+  mavlink_msg_total_torque_decode(&msg, &outTotalTorqueMsg);
 
   geometry_msgs::Vector3Stamped outputVector;
   outputVector.vector.x = outTotalTorqueMsg.x;
@@ -707,8 +707,8 @@ void rosflightIO::handle_total_torque_msg(const mavlink_message_t &msg) {
 }
 
 void rosflightIO::handle_pid_torque_msg(const mavlink_message_t &msg) {
-  mavlink_rosflight_pid_torque_t outPIDTorqueMsg;
-  mavlink_msg_rosflight_pid_torque_decode(&msg, &outPIDTorqueMsg);
+  mavlink_pid_torque_t outPIDTorqueMsg;
+  mavlink_msg_pid_torque_decode(&msg, &outPIDTorqueMsg);
 
   geometry_msgs::Vector3Stamped outputVector;
   outputVector.vector.x = outPIDTorqueMsg.x;
