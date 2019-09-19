@@ -53,13 +53,8 @@ rosflightIO::rosflightIO()
   torque_sub_ = nh_.subscribe("added_torque", 1, &rosflightIO::addedTorqueCallback, this);
 
   unsaved_params_pub_ = nh_.advertise<std_msgs::Bool>("unsaved_params", 1, true);
-<<<<<<< Updated upstream
-  torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("total_torque", 1);
-=======
-  error_pub_ = nh_.advertise<rosflight_msgs::Error>("rosflight_errors",5,true); // A relatively large queue so all messages get through
   torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("total_torque", 1, true);
   pid_torque_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("pid_torque", 1, true);
->>>>>>> Stashed changes
 
   param_get_srv_ = nh_.advertiseService("param_get", &rosflightIO::paramGetSrvCallback, this);
   param_set_srv_ = nh_.advertiseService("param_set", &rosflightIO::paramSetSrvCallback, this);
@@ -70,7 +65,7 @@ rosflightIO::rosflightIO()
   calibrate_rc_srv_ = nh_.advertiseService("calibrate_rc_trim", &rosflightIO::calibrateRCTrimSrvCallback, this);
   reboot_srv_ = nh_.advertiseService("reboot", &rosflightIO::rebootSrvCallback, this);
   reboot_bootloader_srv_ = nh_.advertiseService("reboot_to_bootloader", &rosflightIO::rebootToBootloaderSrvCallback, this);
-  
+
   ros::NodeHandle nh_private("~");
 
   if (nh_private.param<bool>("udp", false))
@@ -664,7 +659,7 @@ void rosflightIO::handle_small_range_msg(const mavlink_message_t &msg)
     case ROSFLIGHT_RANGE_LIDAR:
       alt_msg.radiation_type  = sensor_msgs::Range::INFRARED;
       alt_msg.field_of_view   = .0349066; //approx 2 deg
-      
+
       if (lidar_pub_.getTopic().empty())
       {
         lidar_pub_ = nh_.advertise<sensor_msgs::Range>("lidar", 1);
@@ -697,13 +692,8 @@ void rosflightIO::handle_version_msg(const mavlink_message_t &msg)
 }
 
 void rosflightIO::handle_total_torque_msg(const mavlink_message_t &msg) {
-<<<<<<< Updated upstream
-  mavlink_total_torque_t outTotalTorqueMsg;
-  mavlink_msg_total_torque_decode(&msg, &outTotalTorqueMsg);
-=======
   mavlink_rosflight_total_torque_t outTotalTorqueMsg;
   mavlink_msg_rosflight_total_torque_decode(&msg, &outTotalTorqueMsg);
->>>>>>> Stashed changes
 
   geometry_msgs::Vector3Stamped outputVector;
   outputVector.vector.x = outTotalTorqueMsg.x;
