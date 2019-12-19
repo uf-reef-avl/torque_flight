@@ -46,12 +46,16 @@
 #include <std_msgs/Float32.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
+#include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/TwistStamped.h>
 
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/FluidPressure.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/Temperature.h>
 #include <sensor_msgs/Range.h>
+#include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/TimeReference.h>
 
 #include <std_srvs/Trigger.h>
 
@@ -59,9 +63,13 @@
 #include <rosflight_msgs/Barometer.h>
 #include <rosflight_msgs/Airspeed.h>
 #include <rosflight_msgs/Command.h>
+#include <rosflight_msgs/AuxCommand.h>
 #include <rosflight_msgs/OutputRaw.h>
 #include <rosflight_msgs/RCRaw.h>
 #include <rosflight_msgs/Status.h>
+#include <rosflight_msgs/Error.h>
+#include <rosflight_msgs/GNSSRaw.h>
+#include <rosflight_msgs/GNSS.h>
 #include <rosflight_msgs/AddedTorque.h>
 
 #include <rosflight_msgs/ParamFile.h>
@@ -93,6 +101,10 @@ public:
   virtual void on_param_value_updated(std::string name, double value);
   virtual void on_params_saved_change(bool unsaved_changes);
 
+  static constexpr float HEARTBEAT_PERIOD = 1; //Time between heartbeat messages
+  static constexpr float VERSION_PERIOD = 10; //Time between version requests
+  static constexpr float PARAMETER_PERIOD = 3; //Time between parameter requests
+
 private:
 
   // handle mavlink messages
@@ -107,21 +119,22 @@ private:
   void handle_diff_pressure_msg(const mavlink_message_t &msg);
   void handle_small_baro_msg(const mavlink_message_t &msg);
   void handle_small_mag_msg(const mavlink_message_t &msg);
+  void handle_rosflight_gnss_msg(const mavlink_message_t &msg);
+  void handle_rosflight_gnss_raw_msg(const mavlink_message_t &msg);
   void handle_named_value_int_msg(const mavlink_message_t &msg);
   void handle_named_value_float_msg(const mavlink_message_t &msg);
   void handle_named_command_struct_msg(const mavlink_message_t &msg);
   void handle_small_range_msg(const mavlink_message_t &msg);
   void handle_version_msg(const mavlink_message_t &msg);
   void handle_total_torque_msg(const mavlink_message_t &msg);
-<<<<<<< Updated upstream
-  
-=======
   void handle_pid_torque_msg(const mavlink_message_t &msg);
+  void handle_hard_error_msg(const mavlink_message_t &msg);
 
->>>>>>> Stashed changes
   // ROS message callbacks
   void commandCallback(rosflight_msgs::Command::ConstPtr msg);
   void addedTorqueCallback(rosflight_msgs::AddedTorque::ConstPtr msg);
+  void auxCommandCallback(rosflight_msgs::AuxCommand::ConstPtr msg);
+  void externalAttitudeCallback(geometry_msgs::Quaternion::ConstPtr msg);
 
   // ROS service callbacks
   bool paramGetSrvCallback(rosflight_msgs::ParamGet::Request &req, rosflight_msgs::ParamGet::Response &res);
@@ -139,9 +152,11 @@ private:
   // timer callbacks
   void paramTimerCallback(const ros::TimerEvent &e);
   void versionTimerCallback(const ros::TimerEvent &e);
+  void heartbeatTimerCallback(const ros::TimerEvent &e);
 
   // helpers
   void request_version();
+  void send_heartbeat();
   void check_error_code(uint8_t current, uint8_t previous, ROSFLIGHT_ERROR_CODE code, std::string name);
 
   template<class T> inline T saturate(T value, T min, T max)
@@ -154,6 +169,8 @@ private:
 
   ros::Subscriber command_sub_;
   ros::Subscriber torque_sub_;
+  ros::Subscriber aux_command_sub_;
+  ros::Subscriber extatt_sub_;
 
   ros::Publisher unsaved_params_pub_;
   ros::Publisher imu_pub_;
@@ -164,6 +181,11 @@ private:
   ros::Publisher temperature_pub_;
   ros::Publisher baro_pub_;
   ros::Publisher sonar_pub_;
+  ros::Publisher gnss_pub_;
+  ros::Publisher gnss_raw_pub_;
+  ros::Publisher nav_sat_fix_pub_;
+  ros::Publisher twist_stamped_pub_;
+  ros::Publisher time_reference_pub_;
   ros::Publisher mag_pub_;
   ros::Publisher attitude_pub_;
   ros::Publisher euler_pub_;
@@ -172,11 +194,8 @@ private:
   ros::Publisher lidar_pub_;
   ros::Publisher error_pub_;
   ros::Publisher torque_pub_;
-<<<<<<< Updated upstream
+  ros::Publisher pid_torque_pub_;
 
-=======
-  ros::PUblisher pid_torque_pub_;
->>>>>>> Stashed changes
   std::map<std::string, ros::Publisher> named_value_int_pubs_;
   std::map<std::string, ros::Publisher> named_value_float_pubs_;
   std::map<std::string, ros::Publisher> named_command_struct_pubs_;
@@ -196,6 +215,7 @@ private:
 
   ros::Timer param_timer_;
   ros::Timer version_timer_;
+  ros::Timer heartbeat_timer_;
 
   geometry_msgs::Quaternion attitude_quat_;
   mavlink_rosflight_status_t prev_status_;

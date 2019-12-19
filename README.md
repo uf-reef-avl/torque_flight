@@ -1,6 +1,6 @@
 # ROSflight
 
-[![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__rosflight__ubuntu_xenial_amd64)](http://build.ros.org/job/Kdev__rosflight__ubuntu_xenial_amd64)
+[![Build Status](https://travis-ci.org/rosflight/rosflight.svg?branch=master)](https://travis-ci.org/rosflight/rosflight)
 
 This repository contains the ROS stack for interfacing with an autopilot running the ROSflight firmware. For more information on the ROSflight autopilot firmware stack, visit http://rosflight.org.
 
@@ -28,4 +28,4 @@ This package contains the `rosflight_io` node, which provides the core functiona
 
 ## rosflight_utils
 
-This package contains additional supporting scripts and libraries that are not part of the core ROSflight package functionality. This package also helps support the [ros_plane](https://github.com/byu-magicc/ros_plane) and [ros_copter](https://github.com/byu-magicc/ros_copter) projects.
+This package contains additional supporting scripts and libraries that are not part of the core ROSflight package functionality, including visualization tools for the attitude estimate and magnetometer. This package also helps support the [ROSplane](https://github.com/byu-magicc/rosplane) and [ROScopter](https://github.com/byu-magicc/roscopter) projects.
