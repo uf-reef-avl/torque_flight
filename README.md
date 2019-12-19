@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/rosflight/rosflight.svg?branch=master)](https://travis-ci.org/rosflight/rosflight)
 
+This repo contains 3 extra topics. PID Torques is the output of the PID controllers added to the normal trim in terms of XYZ torques. Total Torque is the torques of th body being commanded to the mix of motors. Finally, there is a sub on the rosflight side called Added Torques, which get added to the torques, before Total Total Torques is calculated, but after PID Torques is calculated allowing for custom controllers as external ros nodes directly commanding delta torques to the vehicle.
+
 This repository contains the ROS stack for interfacing with an autopilot running the ROSflight firmware. For more information on the ROSflight autopilot firmware stack, visit http://rosflight.org.
 
 ## REEF Edits
