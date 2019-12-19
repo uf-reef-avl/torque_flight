@@ -68,7 +68,7 @@ rosflightIO::rosflightIO()
   calibrate_rc_srv_ = nh_.advertiseService("calibrate_rc_trim", &rosflightIO::calibrateRCTrimSrvCallback, this);
   reboot_srv_ = nh_.advertiseService("reboot", &rosflightIO::rebootSrvCallback, this);
   reboot_bootloader_srv_ = nh_.advertiseService("reboot_to_bootloader", &rosflightIO::rebootToBootloaderSrvCallback, this);
-  
+
   ros::NodeHandle nh_private("~");
 
   if (nh_private.param<bool>("udp", false))
@@ -675,7 +675,7 @@ void rosflightIO::handle_small_range_msg(const mavlink_message_t &msg)
     case ROSFLIGHT_RANGE_LIDAR:
       alt_msg.radiation_type  = sensor_msgs::Range::INFRARED;
       alt_msg.field_of_view   = .0349066; //approx 2 deg
-      
+
       if (lidar_pub_.getTopic().empty())
       {
         lidar_pub_ = nh_.advertise<sensor_msgs::Range>("lidar", 1);
@@ -723,8 +723,8 @@ void rosflightIO::handle_total_torque_msg(const mavlink_message_t &msg) {
 }
 
 void rosflightIO::handle_pid_torque_msg(const mavlink_message_t &msg) {
-  mavlink_rosflight_pid_torque_t outPIDTorqueMsg;
-  mavlink_msg_rosflight_pid_torque_decode(&msg, &outPIDTorqueMsg);
+  mavlink_pid_torque_t outPIDTorqueMsg;
+  mavlink_msg_pid_torque_decode(&msg, &outPIDTorqueMsg);
 
   geometry_msgs::Vector3Stamped outputVector;
   outputVector.vector.x = outPIDTorqueMsg.x;
